@@ -11,6 +11,9 @@ app.get("/", (req, res) => {
 app.get("/b", (req, res) => {
   res.sendFile(path.resolve(__dirname + "/broadcast2.html"));
 });
+app.get("/s", (req, res) => {
+  res.sendFile(path.resolve(__dirname + "/schedule.html"));
+});
 app.listen(3000, () =>
   console.log("HTTP server listening at http://45.249.79.39:${HTTP_PORT}")
 );

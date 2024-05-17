@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alarm Clock</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+    <div class="flex w-full max-w-4xl">
+        <div class="bg-white p-8 rounded shadow-md w-1/4">
+            <h1 class="text-2xl font-bold mb-4 text-center">Now Playing</h1>
+            <div id="nowPlaying" class="text-center text-red-500 mb-4"></div>
+            <div class="text-center">
+                <button id="pauseButton" class="bg-yellow-500 text-white px-2 py-1 rounded mr-2 hidden">Pause</button>
+                <button id="playButton" class="bg-green-500 text-white px-2 py-1 rounded mr-2 hidden">Play</button>
+                <button id="stopButton" class="bg-red-500 text-white px-2 py-1 rounded hidden">Stop</button>
+            </div>
+        </div>
+
+        <div class="bg-white p-8 rounded shadow-md w-3/4 ml-4">
+            <h1 class="text-2xl font-bold mb-4 text-center">Set Alarm</h1>
+            <div class="mb-4">
+                <label for="alarmTime" class="block text-gray-700">Alarm Time</label>
+                <input type="time" id="alarmTime" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+            </div>
+            <div class="mb-4">
+                <label for="alarmDays" class="block text-gray-700">Select Days</label>
+                <div id="alarmDays" class="flex flex-wrap">
+                    <label class="mr-2"><input type="checkbox" value="0"> Sun</label>
+                    <label class="mr-2"><input type="checkbox" value="1"> Mon</label>
+                    <label class="mr-2"><input type="checkbox" value="2"> Tue</label>
+                    <label class="mr-2"><input type="checkbox" value="3"> Wed</label>
+                    <label class="mr-2"><input type="checkbox" value="4"> Thu</label>
+                    <label class="mr-2"><input type="checkbox" value="5"> Fri</label>
+                    <label class="mr-2"><input type="checkbox" value="6"> Sat</label>
+                </div>
+            </div>
+            <div class="mb-4">
+                <label for="alarmSoundFile" class="block text-gray-700">Upload Alarm Sound (MP3)</label>
+                <input type="file" id="alarmSoundFile" accept="audio/mpeg" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+            </div>
+            <button id="setAlarmButton" class="w-full bg-indigo-500 text-white py-2 rounded-md hover:bg-indigo-600">Set Alarm</button>
+            <div id="alarmMessage" class="mt-4 text-center text-red-500 hidden"></div>
+            <div id="alarmsList" class="mt-4"></div>
+        </div>
+    </div>
+
+    <audio id="alarmSound" preload="auto"></audio>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const setAlarmButton = document.getElementById("setAlarmButton");
+            const alarmTimeInput = document.getElementById("alarmTime");
+            const alarmDaysInput = document.getElementById("alarmDays");
+            const alarmSoundFileInput = document.getElementById("alarmSoundFile");
+            const alarmMessage = document.getElementById("alarmMessage");
+            const alarmsList = document.getElementById("alarmsList");
+            const nowPlaying = document.getElementById("nowPlaying");
+            const pauseButton = document.getElementById("pauseButton");
+            const playButton = document.getElementById("playButton");
+            const stopButton = document.getElementById("stopButton");
+            const alarmSound = document.getElementById("alarmSound");
+
+            let alarms = [];
+            let currentAlarm = null;
+
+            setAlarmButton.addEventListener("click", () => {
+                const alarmTime = alarmTimeInput.value;
+                const days = Array.from(alarmDaysInput.querySelectorAll('input:checked')).map(checkbox => parseInt(checkbox.value));
+                const files = alarmSoundFileInput.files;
+
+                if (alarmTime && days.length > 0 && files.length > 0) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const alarmSoundSrc = e.target.result;
+                        const alarmSoundName = files[0].name;
+
+                        for (const day of days) {
+                            if (isTimeConflict(day, alarmTime)) {
+                                alarmMessage.innerText = `Conflict: An alarm is already set for ${getDayName(day)} at ${alarmTime}`;
+                                alarmMessage.classList.remove("hidden");
+                                return;
+                            }
+                        }
+
+                        alarmMessage.classList.add("hidden");
+
+                        days.forEach(day => {
+                            const alarm = {
+                                time: alarmTime,
+                                day: day,
+                                soundSrc: alarmSoundSrc,
+                                soundName: alarmSoundName,
+                                timeoutId: scheduleAlarm(day, alarmTime, alarmSoundSrc, alarmSoundName)
+                            };
+
+                            alarms.push(alarm);
+                        });
+
+                        displayAlarms();
+                    };
+                    reader.readAsDataURL(files[0]);
+                }
+            });
+
+            function isTimeConflict(day, alarmTime) {
+                return alarms.some(alarm => alarm.day === day && alarm.time === alarmTime);
+            }
+
+            function scheduleAlarm(day, alarmTime, soundSrc, soundName) {
+                const now = new Date();
+                const currentDay = now.getDay();
+                let dayOffset = day - currentDay;
+
+                if (dayOffset < 0 || (dayOffset === 0 && isTimePassed(alarmTime))) {
+                    dayOffset += 7;
+                }
+
+                const alarmDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + dayOffset);
+                const [hours, minutes] = alarmTime.split(':').map(Number);
+                alarmDate.setHours(hours, minutes, 0, 0);
+
+                const timeToAlarm = alarmDate.getTime() - now.getTime();
+
+                return setTimeout(() => {
+                    currentAlarm = { soundSrc, soundName };
+                    alarmSound.src = soundSrc;
+                    alarmSound.play();
+                    updateNowPlaying(soundName, alarmTime);
+                }, timeToAlarm);
+            }
+
+            function isTimePassed(alarmTime) {
+                const now = new Date();
+                const [hours, minutes] = alarmTime.split(':').map(Number);
+                const alarmDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes, 0, 0);
+                return now.getTime() > alarmDate.getTime();
+            }
+
+            pauseButton.addEventListener("click", () => {
+                alarmSound.pause();
+                pauseButton.classList.add("hidden");
+                playButton.classList.remove("hidden");
+            });
+
+            playButton.addEventListener("click", () => {
+                alarmSound.play();
+                playButton.classList.add("hidden");
+                pauseButton.classList.remove("hidden");
+            });
+
+            stopButton.addEventListener("click", () => {
+                alarmSound.pause();
+                alarmSound.currentTime = 0;
+                pauseButton.classList.add("hidden");
+                playButton.classList.add("hidden");
+                stopButton.classList.add("hidden");
+                nowPlaying.innerText = "";
+                currentAlarm = null;
+            });
+
+            function displayAlarms() {
+                alarmsList.innerHTML = "";
+                alarms.forEach((alarm, index) => {
+                    const alarmItem = document.createElement("div");
+                    alarmItem.classList.add("flex", "justify-between", "items-center", "p-2", "border", "border-gray-300", "rounded", "mb-2");
+                    alarmItem.innerHTML = `
+                        <span>${getDayName(alarm.day)} ${alarm.time} - ${alarm.soundName}</span>
+                        <button class="bg-red-500 text-white px-2 py-1 rounded" onclick="removeAlarm(${index})">Remove</button>
+                    `;
+                    alarmsList.appendChild(alarmItem);
+                });
+            }
+
+            function updateNowPlaying(soundName, alarmTime) {
+                alarmMessage.classList.remove("hidden");
+                alarmMessage.classList.add("block");
+                alarmMessage.innerText = `Playing: ${soundName} at ${alarmTime}`;
+                nowPlaying.innerText = `Playing: ${soundName} at ${alarmTime}`;
+                pauseButton.classList.remove("hidden");
+                stopButton.classList.remove("hidden");
+                playButton.classList.add("hidden");
+            }
+
+            window.removeAlarm = function(index) {
+                clearTimeout(alarms[index].timeoutId);
+                alarms.splice(index, 1);
+                displayAlarms();
+                if (alarms.length === 0) {
+                    nowPlaying.innerText = "";
+                }
+            };
+
+            function getDayName(dayIndex) {
+                const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                return days[dayIndex];
+            }
+        });
+    </script>
+</body>
+</html>
