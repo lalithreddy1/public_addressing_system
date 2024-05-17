@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MP3 File Upload</title>
+</head>
+<body>
+    <h1>Upload MP3 File</h1>
+    <form id="uploadForm" enctype="multipart/form-data">
+        <input type="file" name="mp3File" id="mp3FileInput">
+        <button type="submit">Upload</button>
+    </form>
+
+    <script>
+        const uploadForm = document.getElementById('uploadForm');
+        const mp3FileInput = document.getElementById('mp3FileInput');
+
+        uploadForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const formData = new FormData();
+            formData.append('mp3File', mp3FileInput.files[0]);
+
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData,
+                }).then(response =>response.blob()).then(
+                    blob=>{
+                        const reader = new FileReader();
+                        reader.onload = async(event) => {
+                        const arrayBuffer = event.target.result;
+                        const chunkSize = 2972; // Adjust chunk size as needed
+
+// Initialize offset and flag
+let offset = 0;
+let flag = 1; // Assuming flag1 is replaced with flag
+while (offset < arrayBuffer.byteLength) {
+                    const chunk = arrayBuffer.slice(offset, offset + chunkSize);
+                    console.log(chunk)
+
+                    // Update offset
+                    offset += chunkSize;
+
+                    // Check if broadcasting should be stopped
+                    if (arrayBuffer.byteLength - offset <= 20) {
+                        updateStatus('0'); // Stop broadcasting
+                        flag = 0; // Set flag to 0
+                    }
+
+                    // Check if flag indicates broadcasting should be stopped
+                    if (flag === 0) {
+                        break;
+                    }
+
+                    // Wait for a short duration before sending the next chunk
+                    await new Promise(resolve => setTimeout(resolve, 70));
+                }
+            }
+            reader.readAsArrayBuffer(blob);
+            })
+            } catch (error) {
+                console.error('Error uploading file:', error);
+            }
+        });
+    </script>
+</body>
+</html>

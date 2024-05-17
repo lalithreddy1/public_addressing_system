@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MP3 File Upload</title>
+   <link rel="stylesheet" type="text/css" href="./css/login.css">
+</head>
+<body>
+ <div class="container">
+        <img src="./images/IERDC.png" alt="Your Image">
+       
+       <div class="center">
+            <h1>Sign up</h1>
+          <form action="/r" method="post">
+              <div class="txt_field">
+                <input type="text" name="username" required>
+                <span></span>
+                <label>Username</label>
+              </div>
+              <div class="txt_field">
+                <input type="text" name="empid" required>
+                <span></span>
+                <label>Employee ID</label>
+              </div>
+              <div class="txt_field">
+                <input type="text" name="email" required>
+                <span></span>
+                <label>Email</label>
+              </div>
+              <div class="txt_field">
+                <input type="password" name="password" required>
+                <span></span>
+                <label>Password</label>
+              </div>
+              
+              <input type="submit" value="ADD User">
+              <div class="signup_link">
+               
+              </div>
+            </form>
+          
+          </div>
+            <div class="butt">
+            <a href="http://45.249.79.39/t"> <button class= "btn2">Client Status</button></a>
+            <button id="btn3" class= "btn3">RESTART</button>
+      <a href="http://45.249.79.39/adminlogout"> <button class= "btn1">Logout</button></a>
+      
+      </div>
+    </div>
+    <script>
+    
+    let websocket_uri = 'ws://45.249.79.39/websocket';
+    let websocket;
+    
+    initWebSocket();
+    
+    
+    function initWebSocket() {
+ 
+    websocket = new WebSocket(websocket_uri);
+    console.log("Websocket created...");  
+  
+    }
+    
+   
+
+    
+    
+    function restartESP() {
+    console.log("RESTART ESP...");  
+    websocket.send("restart");
+}
+
+    document.getElementById("btn3").addEventListener('click', restartESP);
+    </script>
+    
+</body>
+
+</html>

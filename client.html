@@ -1,0 +1,42 @@
+<html>
+<head>
+    
+    <title>KLU Public Addressing System</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+    
+    
+</head>
+<style>
+    body {
+        font-family: 'Roboto', sans-serif;
+    }
+
+    .button {
+
+    }
+    
+    #volume{
+       
+    padding: 0px 0px 0px 650px;
+    
+    }
+</style>
+<body>
+  
+    <center><h1>KLU Public Addressing System</h1></center>
+    </br>
+    <center><button id="connectBtn" class="button" onclick="connect()"></button></center>
+<center>
+<h4 id="vol">Volume :</h4>
+<input type="range" max="1" value="0.5" min="0" id="range" onchange="changeVolume(event)" step="0.1"></center>
+  
+     <button id="pauseBtn" onclick="pause()" hidden>Pause Playing</button>
+    <button id="continueBtn"  onclick="continuePlay()" hidden>Continue Playing</button>
+     <audio id="audioPlayer" controls></audio>
+
+    <script src="./js/c.js">
+    
+</script>
+</body>
+</html>

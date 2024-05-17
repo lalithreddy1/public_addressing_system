@@ -1,0 +1,146 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Table Display</title>
+    <style>
+  
+    
+     body {
+            font-family: 'Arial', sans-serif;
+            
+            margin: 0;
+            padding: 0;
+           background: rgb(240,6,6);
+background: linear-gradient(262deg, rgba(240,6,6,1) 0%, rgba(184,213,49,1) 0%);
+            height: 100vh;
+        }
+
+        h1 {
+            text-align:center;
+            color: #333;
+        }
+        
+        .tab{
+          display: flex;
+            align-items: center;
+            justify-content: center;
+          
+        }
+
+        table {
+            width: 50%;
+            border-collapse: collapse;
+            margin: 20px auto;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            
+        }
+
+        th {
+            background-color: #333;
+            color: #fff;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+
+        .led-red {
+        
+        margin: 0 auto;
+        width: 24px;
+        height: 24px;
+        border: 2px solid black;
+        border-radius: 50%;
+        background-color: #F00;
+        box-shadow: rgba(0, 0, 0, 0.2) 0 -1px 7px 1px, inset #304701 0 -1px 9px, #F00 0 2px 12px;
+    }
+    
+    
+    .led-green{
+        
+        margin: 0 auto;
+        width: 24px;
+        height: 24px;
+        border: 2px solid black;
+        border-radius: 50%;
+        background-color: #ABFF00;
+        box-shadow: rgba(0, 0, 0, 0.2) 0 -1px 7px 1px, inset #304701 0 -1px 9px, #89FF00 0 2px 12px;
+    }
+
+
+    .redblink {
+        animation: blinkRed 0.5s infinite;
+    }
+    .greenblink {
+        animation: blinkGreen 0.5s infinite;
+    }
+
+    @keyframes blinkRed {
+            from { background-color: #F00; }
+            50% { background-color: #A00; box-shadow: rgba(0, 0, 0, 0.2) 0 -1px 7px 1px, inset #441313 0 -1px 9px, rgba(255, 0, 0, 0.5) 0 2px 0; }
+            to { background-color: #F00; }
+        }
+        
+       @keyframes blinkGreen {
+    from { background-color: #89FF00; }
+    50% { background-color: #0A8F08; box-shadow: rgba(0, 0, 0, 0.2) 0 -1px 7px 1px, inset #044C06 0 -1px 9px, rgba(0, 255, 0, 0.5) 0 2px 0; }
+    to { background-color: #89FF00; }
+}
+        
+        .lights{
+    
+        }
+    </style>
+</head>
+<body>
+
+ <h1>Client Details</h1>
+   <div class="tab">
+    <table border="1">
+        <tr>
+            
+            <th>Client IP</th>
+           <th>Privilege</th>
+            <th>Status</th>
+            
+            
+        </tr>
+        <% if (clients && clients.length) { %>
+            <% for (var i = 0; i < clients.length; i++) { %>
+                <tr>
+                    <td><%= clients[i].client_ip %></td>
+                  
+                <td><%= clients[i].status %></td>
+                    <td >
+                    <div class="lights">
+                        <div class=" <%= clients[i].connection === 'Disconnected' ? 'led-red redblink' : 'led-green' %>"></div>
+                        
+                        </div>
+                    </td>
+                </tr>
+            <% } %>
+        <% } else { %>
+            <tr>
+                <td colspan="3">No data available</td>
+            </tr>
+        <% } %>
+    </table>
+    </div>
+    <script>
+    setInterval(function () {
+        location.reload();
+    }, 3000);
+</script>
+</body>
+</html>

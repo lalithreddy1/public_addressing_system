@@ -1,0 +1,123 @@
+ div{
+            aspect-ratio: 4/3;
+            position: relative;
+        }
+        
+
+        *{
+            margin: 0 0 0 0;
+            padding: 0 0 0 0;
+    
+            box-sizing:border-box;
+        }
+        body {
+            min-height: 100vh;
+            display:grid;
+            justify-content: center;
+            align-items:flex-start;
+            background-color: black;
+            overflow : hidden;
+            
+        }
+        img{
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+        }
+        .box {
+       position: absolute;
+       top: 28%;
+       left: 58%;
+       width: 40%;
+       height: 20%;
+       background-color: rgba(255, 255, 255, 0.8);
+       border: 3px solid #000;
+       background-image: url(../images/pcmff.png);
+       background-repeat: no-repeat;
+       background-size: 100% 100%;
+        }
+
+        #container-9 {
+            position: relative;
+            border: 3px solid #000;
+            /* bottom: 9%; */
+            display: block;
+            text-align: center;
+            height: 50%;
+            width: 53%;
+            background-color: black;
+            top: 59%;
+            left: 32%;
+            transform: translate(-50%, -50%);
+            -ms-transform: translate(-50%, -50%);
+        }
+
+        map{
+          cursor: pointer;
+          z-index: 999;
+        }
+        .overlay {
+      position: absolute;
+           bottom: 0.5%;
+      right: 0.1%;
+      width: 100%;
+      height: 100%; 
+      z-index: 9; /* Set a high z-index to ensure it's above other elements */
+      opacity: 1; /* Adjust the opacity as needed */
+    }
+
+.vol{
+      margin:0;
+        padding:0;
+        position: absolute;
+        
+        display:flex;
+        justify-content: center;
+        align-items: center;
+        top:25%;
+        right:2%;
+        z-index: 999;
+    }
+
+.btn{
+        position: absolute;
+        top: 58%;
+        right:14%;
+        z-index: 999;
+        
+    }
+    button{
+        height: 40px;
+        width: 40px;
+        cursor: pointer;
+        opacity: 0;
+    }
+    input[type="range"] {
+    
+      -webkit-appearance: none;
+      width: 80%;
+      height: 10px;
+      background-color: #b7e637;
+      border-radius: 22px;
+      border: 2px solid black;
+      outline: none;
+      opacity: 0.7;
+      -webkit-transition: .2s;
+      transition: opacity .2s;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50px;
+      border: 2px solid black;
+      background-color: #b7e637;; /* Set the thumb color */
+      cursor: pointer;
+    }
+
+    input[type="range"]:hover {
+      opacity: 1;
+    }

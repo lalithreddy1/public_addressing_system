@@ -1,0 +1,221 @@
+<!-- mp3encoder file editing  -->
+
+<!DOCTYPE html>
+<html>
+  <head>
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/lamejs@1.2.1/lame.min.js"></script>
+
+    <base href="/" />
+
+    <style>
+        div{
+            aspect-ratio: 4/3;
+        }
+
+        *{
+            margin: 0 0 0 0;
+            padding: 0 0 0 0;
+    
+            box-sizing:border-box;
+        }
+        body {
+            min-height: 100vh;
+            display:grid;
+            justify-content: center;
+            align-items:flex-start;
+            background-color: black;
+            overflow : hidden;
+            
+        }
+        img{
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+    
+        
+        }
+
+
+
+      </style>
+
+
+  </head>
+
+  <body>
+
+      <div>
+      
+      
+<img src="./images/KLU_PAS.png" alt="Workplace" usemap="#workmap" id ="a" ></div>
+
+<map name="workmap">
+
+  <area shape="circle" coords="410,300,170" alt="Cup of coffee" onclick="abc()" title="Start Broadcasting !">
+  <area shape="poly" coords="822,418,899,417,941,486,901,555,821,554,783,485"  onclick="logout()" title="logout">
+</map>
+     <script>
+      
+let websocket_uri = 'ws://45.249.79.39/websocket';
+let bufferSize=4096,
+    AudioContext,
+    context,
+    processor,
+    input,
+    globalStream,
+    websocket,
+    t;
+
+    let mp3Encoder = new lamejs.Mp3Encoder(1, 44100, 128);//changed bitrate
+// Initialize WebSocket
+initWebSocket();
+function logout(){
+console.log("LOGOUT");
+}
+       
+ function abc(){
+        t=document.getElementById("a").src;
+        console.log(t);
+        if(document.getElementById("a").src=="http://45.249.79.39/images/KLU_PAS.png")
+        {
+            document.getElementById("a").src="./images/KLU_PAS_R.png";
+           
+            startRecording();
+        }
+        else{
+            document.getElementById("a").src="./images/KLU_PAS.png";
+            
+            stopRecording();
+        }
+            
+
+    }
+
+    function startRecording() {
+    streamStreaming = true;
+    AudioContext = window.AudioContext || window.webkitAudioContext;
+    context = new AudioContext({
+      // if Non-interactive, use 'playback' or 'balanced' // https://developer.mozilla.org/en-US/docs/Web/API/AudioContextLatencyCategory
+      latencyHint: 'interactive',
+      sampleRate:  44100,
+    });
+    processor = context.createScriptProcessor(bufferSize, 1, 1);
+    processor.connect(context.destination);
+    context.resume();
+    var handleSuccess = function (stream) {
+      globalStream = stream;
+      input = context.createMediaStreamSource(stream);
+      input.connect(processor);
+
+      processor.onaudioprocess = function (e) {
+        var left = e.inputBuffer.getChannelData(0);  // Left channel
+         //var left16 = downsampleBuffer(left, 44100, 16000);
+        // console.log("Downsampled audio buffer:", left16);
+        var mp3Buffer = mp3Encoder.encodeBuffer(left);
+         console.log("Encoded MP3 buffer:", mp3Buffer);
+        websocket.send(mp3Buffer);
+      };
+    };
+
+    const mediaStreamConstraints = {
+       audio: {
+         channelCount: 1,
+         echoCancellation: true,
+         noiseSuppression: false,
+         volume: 0.5,
+       },
+
+       video: false
+   }
+  
+    navigator.mediaDevices.getUserMedia(mediaStreamConstraints).then(handleSuccess);
+}
+
+
+function stopRecording() {
+    streamStreaming = false;
+  
+    let track = globalStream.getTracks()[0];   
+    track.stop();
+    input.disconnect(processor);
+    processor.disconnect(context.destination);
+    context.close().then(function () {
+      input = null;
+      processor = null;
+      context = null;
+      AudioContext = null;
+    });
+}
+
+
+function initWebSocket() {
+    // Create WebSocket
+    websocket = new WebSocket(websocket_uri);
+    console.log("Websocket created...");
+  
+    // WebSocket Definitions: executed when triggered webSocketStatus
+    websocket.onopen = function() {
+      console.log("connected to server");
+      //websocket.send("CONNECTED TO YOU");
+      document.getElementById("webSocketStatus").innerHTML = 'Connected';
+    }
+    
+    websocket.onclose = function(e) {
+      console.log("connection closed (" + e.code + ")");
+      document.getElementById("webSocketStatus").innerHTML = 'Not Connected';
+    }
+    
+    websocket.onmessage = function(e) {
+      //console.log("message received: " + e.data);
+      console.log(e.data);
+  
+      try {
+        result = JSON.parse(e.data);
+      }  catch (e) {
+        $('.message').html('Error retrieving data: ' + e);
+      }
+  
+      if (typeof(result) !== 'undefined' && typeof(result.error) !== 'undefined') {
+        $('.message').html('Error: ' + result.error);
+      }
+      else {
+        $('.message').html('KLU Public Addressing System!');
+      }
+    }
+} // closes function initWebSocket()
+
+function downsampleBuffer (buffer, sampleRate, outSampleRate) {
+    if (outSampleRate == sampleRate) {
+      return buffer;
+    }
+    if (outSampleRate > sampleRate) {
+      throw 'downsampling rate show be smaller than original sample rate';
+    }
+    var sampleRateRatio = sampleRate / outSampleRate;
+    var newLength = Math.round(buffer.length / sampleRateRatio);
+    var result = new Int16Array(newLength);
+    //console.log(newLength)
+    var offsetResult = 0;
+    var offsetBuffer = 0;
+    while (offsetResult < result.length) {
+      var nextOffsetBuffer = Math.round((offsetResult + 1) * sampleRateRatio);
+      var accum = 0,
+        count = 0;
+      for (var i = offsetBuffer; i < nextOffsetBuffer && i < buffer.length; i++) {
+        accum += buffer[i];
+        count++;
+      }
+  
+      result[offsetResult] = Math.min(1, accum / count) * 0x7fff;
+      offsetResult++;
+      offsetBuffer = nextOffsetBuffer;
+    }
+    return result.buffer;
+}
+
+
+   </script>  
+  </body>
+</html>
