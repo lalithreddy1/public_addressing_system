@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Player Alarm</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+    <div class="flex w-full max-w-4xl">
+        <div class="bg-white p-8 rounded shadow-md w-1/3">
+            <h1 class="text-2xl font-bold mb-4 text-center">Now Playing</h1>
+            <div id="nowPlaying" class="text-center text-red-500 mb-4"></div>
+            <div class="text-center">
+                <button id="pauseButton" class="bg-yellow-500 text-white px-2 py-1 rounded mr-2 hidden">Pause</button>
+                <button id="playButton" class="bg-green-500 text-white px-2 py-1 rounded mr-2 hidden">Play</button>
+                <button id="stopButton" class="bg-red-500 text-white px-2 py-1 rounded hidden">Stop</button>
+            </div>
+        </div>
+
+        <div class="bg-white p-8 rounded shadow-md w-2/3 ml-4">
+            <h1 class="text-2xl font-bold mb-4 text-center">Set Music Alarm</h1>
+            <div class="mb-4">
+                <label class="block text-gray-700">Choose Action:</label>
+                <div>
+                    <label class="inline-flex items-center">
+                        <input type="radio" name="actionType" value="playNow" checked>
+                        <span class="ml-2">Play Now</span>
+                    </label>
+                    <label class="inline-flex items-center ml-4">
+                        <input type="radio" name="actionType" value="schedule">
+                        <span class="ml-2">Schedule</span>
+                    </label>
+                </div>
+            </div>
+            <div id="scheduleOptions" class="mb-4 hidden">
+                <label class="block text-gray-700">Schedule Type:</label>
+                <div>
+                    <label class="inline-flex items-center">
+                        <input type="radio" name="scheduleType" value="date" checked>
+                        <span class="ml-2">For Date</span>
+                    </label>
+                    <!-- <label class="inline-flex items-center ml-4">
+                        <input type="radio" name="scheduleType" value="daily">
+                        <span class="ml-2">Daily</span>
+                    </label> -->
+                </div>
+            </div>
+            <div id="scheduleInputsDate" class="hidden">
+                <div class="mb-4">
+                    <label for="alarmDateInput" class="block text-gray-700">Alarm Date</label>
+                    <input type="date" id="alarmDateInput" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                </div>
+                <div class="mb-4">
+                    <label for="alarmTimeInput" class="block text-gray-700">Alarm Time</label>
+                    <input type="time" id="alarmTimeInput" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                </div>
+            </div>
+            <div id="scheduleInputsDaily" class="hidden">
+                <div class="mb-4">
+                    <label for="alarmTimeDailyInput" class="block text-gray-700">Alarm Time</label>
+                    <input type="time" id="alarmTimeDailyInput" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                </div>
+                <div class="mb-4">
+                    <label for="alarmDaysInput" class="block text-gray-700">Select Days</label>
+                    <div id="alarmDaysInput" class="flex flex-wrap">
+                        <label class="mr-2"><input type="checkbox" value="0"> Sun</label>
+                        <label class="mr-2"><input type="checkbox" value="1"> Mon</label>
+                        <label class="mr-2"><input type="checkbox" value="2"> Tue</label>
+                        <label class="mr-2"><input type="checkbox" value="3"> Wed</label>
+                        <label class="mr-2"><input type="checkbox" value="4"> Thu</label>
+                        <label class="mr-2"><input type="checkbox" value="5"> Fri</label>
+                        <label class="mr-2"><input type="checkbox" value="6"> Sat</label>
+                    </div>
+                </div>
+            </div>
+            <div class="mb-4">
+                <label for="alarmSoundFile" class="block text-gray-700">Upload Music File (MP3)</label>
+                <input type="file" id="alarmSoundFile" accept="audio/mpeg" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+            </div>
+            <button id="setAlarmButton" class="w-full bg-indigo-500 text-white py-2 rounded-md hover:bg-indigo-600">Set
+                Alarm</button>
+            <div id="alarmMessage" class="mt-4 text-center text-red-500 hidden"></div>
+            <div id="alarmsList" class="mt-4"></div>
+        </div>
+    </div>
+
+    <audio id="alarmSound" preload="auto"></audio>
+
+    <script>
+        let alarms = [];
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const setAlarmButton = document.getElementById("setAlarmButton");
+            const alarmDateInput = document.getElementById("alarmDateInput");
+            const alarmTimeInput = document.getElementById("alarmTimeInput");
+            const alarmTimeDailyInput = document.getElementById("alarmTimeDailyInput");
+            const alarmDaysInput = document.getElementById("alarmDaysInput");
+            const alarmSoundFileInput = document.getElementById("alarmSoundFile");
+            const alarmMessage = document.getElementById("alarmMessage");
+            const alarmsList = document.getElementById("alarmsList");
+            const nowPlaying = document.getElementById("nowPlaying");
+            const pauseButton = document.getElementById("pauseButton");
+            const playButton = document.getElementById("playButton");
+            const stopButton = document.getElementById("stopButton");
+            const alarmSound = document.getElementById("alarmSound");
+            const actionTypeRadios = document.querySelectorAll('input[name="actionType"]');
+            const scheduleTypeRadios = document.querySelectorAll('input[name="scheduleType"]');
+            const scheduleOptions = document.getElementById("scheduleOptions");
+            const scheduleInputsDate = document.getElementById("scheduleInputsDate");
+            const scheduleInputsDaily = document.getElementById("scheduleInputsDaily");
+
+            function removeAlarm(index) {
+                clearTimeout(alarms[index].timeoutId);
+                alarms.splice(index, 1);
+                displayAlarms();
+            }
+
+            // Add event listeners for action type radios
+            actionTypeRadios.forEach(radio => {
+                radio.addEventListener('change', handleActionTypeChange);
+            });
+
+            // Add event listeners for schedule type radios
+            scheduleTypeRadios.forEach(radio => {
+                radio.addEventListener('change', handleScheduleTypeChange);
+            });
+
+            function handleActionTypeChange() {
+                const selectedActionType = document.querySelector('input[name="actionType"]:checked').value;
+                if (selectedActionType === "playNow") {
+                    scheduleOptions.classList.add("hidden");
+                    scheduleInputsDate.classList.add("hidden");
+                    scheduleInputsDaily.classList.add("hidden");
+                } else {
+                    scheduleOptions.classList.remove("hidden");
+                    handleScheduleTypeChange();
+                }
+            }
+
+            function handleScheduleTypeChange() {
+                const selectedScheduleType = document.querySelector('input[name="scheduleType"]:checked').value;
+                if (selectedScheduleType === "date") {
+                    scheduleInputsDate.classList.remove("hidden");
+                    scheduleInputsDaily.classList.add("hidden");
+                } else {
+                    scheduleInputsDate.classList.add("hidden");
+                    scheduleInputsDaily.classList.remove("hidden");
+                }
+            }
+
+            function displayAlarms() {
+                alarmsList.innerHTML = `
+                    <table class="w-full border-collapse border border-gray-300">
+                        <thead>
+                            <tr>
+                                <th class="border border-gray-300 px-4 py-2">Time</th>
+                                <th class="border border-gray-300 px-4 py-2">Day</th>
+                                <th class="border border-gray-300 px-4 py-2">Sound Name</th>
+                                <th class="border border-gray-300 px-4 py-2">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${alarms.map((alarm, index) => `
+                                <tr>
+                                    <td class="border border-gray-300 px-4 py-2">${alarm.time}</td>
+                                    <td class="border border-gray-300 px-4 py-2">${alarm.type === 'date' ? '-' : alarm.day}</td>
+                                    <td class="border border-gray-300 px-4 py-2">${alarm.soundName}</td>
+                                    <td class="border border-gray-300 px-4 py-2">
+                                        <button class="bg-green-500 text-white px-2 py-1 rounded mr-2" onclick="playAlarm(${index})">Play</button>
+                                        <button class="bg-red-500 text-white px-2 py-1 rounded" onclick="removeAlarm(${index})">Delete</button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            }
+
+            function setAlarm() {
+                const selectedActionType = document.querySelector('input[name="actionType"]:checked').value;
+                const selectedScheduleType = document.querySelector('input[name="scheduleType"]:checked').value;
+                const alarmDate = alarmDateInput.value;
+                const alarmTime = selectedScheduleType === 'date' ? alarmTimeInput.value : alarmTimeDailyInput.value;
+                const days = selectedScheduleType === 'daily' ? Array.from(alarmDaysInput.querySelectorAll('input:checked')).map(checkbox => checkbox.value) : [];
+
+                const files = alarmSoundFileInput.files;
+                if (files.length > 0) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const soundSrc = e.target.result;
+                        const soundName = files[0].name;
+
+                        const alarm = {
+                            type: selectedScheduleType,
+                            day: selectedScheduleType === 'daily' ? null : alarmDate,
+                            time: alarmTime,
+                            soundSrc: soundSrc,
+                            soundName: soundName,
+                            timeoutId: null
+                        };
+
+                        if (isTimeConflict(alarm)) {
+                            alarmMessage.innerText = "Time conflict. Please choose another time.";
+                            alarmMessage.classList.remove("hidden");
+                            return;
+                        }
+
+                        alarms.push(alarm);
+                        displayAlarms();
+                        alarmMessage.classList.add("hidden");
+
+                        if (selectedActionType === "playNow") {
+                            playAlarm(alarms.length - 1);
+                        } else {
+                            if (selectedScheduleType === "date") {
+                                scheduleAlarm(alarms.length - 1);
+                            } else {
+                                scheduleDaily(alarms.length - 1);
+                            }
+                        }
+                    };
+                    reader.readAsDataURL(files[0]);
+                }
+            }
+
+            function isTimeConflict(newAlarm) {
+                return alarms.some(alarm => {
+                    if (newAlarm.type === 'date' && alarm.type === 'date') {
+                        return alarm.time === newAlarm.time;
+                    } else if (newAlarm.type === 'daily' && alarm.type === 'daily') {
+                        return alarm.time === newAlarm.time && alarm.day === newAlarm.day;
+                    } else if (newAlarm.type === 'date' && alarm.type === 'daily') {
+                        return alarm.time === newAlarm.time && alarm.day === newAlarm.day;
+                    }
+                    return false;
+                });
+            }
+
+            function scheduleAlarm(index) {
+                const alarm = alarms[index];
+                const dateTime = new Date(alarm.day + 'T' + alarm.time);
+                const timeToAlarm = dateTime - new Date();
+
+                if (timeToAlarm < 0) {
+                    alarmMessage.innerText = "Please choose a future time.";
+                    alarmMessage.classList.remove("hidden");
+                    return;
+                }
+
+                alarm.timeoutId = setTimeout(() => {
+                    playAlarm(index);
+                }, timeToAlarm);
+            }
+
+            function scheduleDaily(index) {
+                const alarm = alarms[index];
+                const selectedDays = Array.from(alarmDaysInput.querySelectorAll('input:checked')).map(checkbox => checkbox.value);
+
+                selectedDays.forEach(day => {
+                    const dateTime = getNextDayTime(day, alarm.time);
+                    const timeToAlarm = dateTime - new Date();
+
+                    if (timeToAlarm < 0) {
+                        alarmMessage.innerText = "Please choose a future time.";
+                        alarmMessage.classList.remove("hidden");
+                        return;
+                    }
+
+                    alarm.timeoutId = setTimeout(() => {
+                        playAlarm(index);
+                    }, timeToAlarm);
+                });
+            }
+
+            function getNextDayTime(day, time) {
+                const now = new Date();
+                const today = now.getDay();
+                const targetDay = (day - today + 7) % 7;
+                const targetDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + targetDay);
+                const targetDateTime = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate(), ...time.split(":"));
+
+                return targetDateTime;
+            }
+
+            function playAlarm(index) {
+                const selectedAlarm = alarms[index];
+                alarmSound.src = selectedAlarm.soundSrc;
+                alarmSound.play();
+                updateNowPlaying(selectedAlarm.soundName, selectedAlarm.time);
+            }
+
+            function updateNowPlaying(soundName, alarmTime) {
+                nowPlaying.innerText = `Playing: ${soundName} at ${alarmTime}`;
+                playButton.classList.add("hidden");
+                pauseButton.classList.remove("hidden");
+                stopButton.classList.remove("hidden");
+            }
+            window.removeAlarm = function (index) {
+                clearTimeout(alarms[index].timeoutId);
+                alarms.splice(index, 1);
+                displayAlarms();
+                if (alarms.length === 0) {
+                    nowPlaying.innerText = "";
+                }
+            };
+
+            setAlarmButton.addEventListener("click", () => {
+                setAlarm();
+            });
+
+            pauseButton.addEventListener("click", () => {
+                alarmSound.pause();
+                pauseButton.classList.add("hidden");
+                playButton.classList.remove("hidden");
+            });
+
+            playButton.addEventListener("click", () => {
+                alarmSound.play();
+                playButton.classList.add("hidden");
+                pauseButton.classList.remove("hidden");
+            });
+
+            stopButton.addEventListener("click", () => {
+                alarmSound.pause();
+                alarmSound.currentTime = 0;
+                playButton.classList.remove("hidden");
+                pauseButton.classList.add("hidden");
+                stopButton.classList.add("hidden");
+                nowPlaying.innerText = "";
+            });
+
+        });
+    </script>
+</body>
+
+</html>
+
+
