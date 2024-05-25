@@ -37,103 +37,104 @@
                 </div>
             </div>
             <div>
-            <div id="scheduleOptions" class="mb-4 hidden">
-                <label class="block text-gray-700">Schedule Type:</label>
-                <div>
-                    <label class="inline-flex items-center">
-                        <input type="radio" name="scheduleType" value="date" checked>
-                        <span class="ml-2">For Date</span>
-                    </label>
+                <div id="scheduleOptions" class="mb-4 hidden">
+                    <label class="block text-gray-700">Schedule Type:</label>
+                    <div>
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="scheduleType" value="date" checked>
+                            <span class="ml-2">For Date</span>
+                        </label>
+                    </div>
                 </div>
+                <div class="flex flex-row gap-8">
+                    <div id="scheduleInputsDate" class="hidden flex flex-row gap-8">
+                        <div class="mb-4">
+                            <label for="alarmDateInput" class="block text-gray-700">Alarm Date</label>
+                            <input type="date" id="alarmDateInput"
+                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        </div>
+                        <div class="mb-4">
+                            <label for="alarmTimeInput" class="block text-gray-700">Alarm Time</label>
+                            <input type="time" id="alarmTimeInput"
+                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label for="alarmSoundFile" class="block text-gray-700">Upload Music File (MP3)</label>
+                        <input type="file" id="alarmSoundFile" accept="audio/mpeg"
+                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    </div>
+                </div>
+                <button id="setAlarmButton"
+                    class="w-full bg-indigo-500 text-white py-2 rounded-md hover:bg-indigo-600">Set
+                    Alarm</button>
+                <div id="alarmMessage" class="mt-4 text-center text-red-500 hidden"></div>
+                <div id="alarmsList" class="mt-4"></div>
             </div>
-            <div id="scheduleInputsDate" class="hidden flex flex-row gap-8">
-                <div class="mb-4">
-                    <label for="alarmDateInput" class="block text-gray-700">Alarm Date</label>
-                    <input type="date" id="alarmDateInput"
-                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                </div>
-                <div class="mb-4">
-                    <label for="alarmTimeInput" class="block text-gray-700">Alarm Time</label>
-                    <input type="time" id="alarmTimeInput"
-                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                </div>
-                <div class="mb-4">
-                    <label for="alarmSoundFile" class="block text-gray-700">Upload Music File (MP3)</label>
-                    <input type="file" id="alarmSoundFile" accept="audio/mpeg"
-                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                </div>
-            </div>
-            </div>
-           
-            <button id="setAlarmButton" class="w-full bg-indigo-500 text-white py-2 rounded-md hover:bg-indigo-600">Set
-                Alarm</button>
-            <div id="alarmMessage" class="mt-4 text-center text-red-500 hidden"></div>
-            <div id="alarmsList" class="mt-4"></div>
         </div>
-    </div>
 
-    <audio id="alarmSound" preload="auto"></audio>
+        <audio id="alarmSound" preload="auto"></audio>
 
-    <script>
-        let alarms = [];
+        <script>
+            let alarms = [];
 
-        document.addEventListener("DOMContentLoaded", () => {
-            const setAlarmButton = document.getElementById("setAlarmButton");
-            const alarmDateInput = document.getElementById("alarmDateInput");
-            const alarmTimeInput = document.getElementById("alarmTimeInput");
-            const alarmSoundFileInput = document.getElementById("alarmSoundFile");
-            const alarmMessage = document.getElementById("alarmMessage");
-            const alarmsList = document.getElementById("alarmsList");
-            const nowPlaying = document.getElementById("nowPlaying");
-            const pauseButton = document.getElementById("pauseButton");
-            const playButton = document.getElementById("playButton");
-            const stopButton = document.getElementById("stopButton");
-            const alarmSound = document.getElementById("alarmSound");
-            const actionTypeRadios = document.querySelectorAll('input[name="actionType"]');
-            const scheduleTypeRadios = document.querySelectorAll('input[name="scheduleType"]');
-            const scheduleOptions = document.getElementById("scheduleOptions");
-            const scheduleInputsDate = document.getElementById("scheduleInputsDate");
+            document.addEventListener("DOMContentLoaded", () => {
+                const setAlarmButton = document.getElementById("setAlarmButton");
+                const alarmDateInput = document.getElementById("alarmDateInput");
+                const alarmTimeInput = document.getElementById("alarmTimeInput");
+                const alarmSoundFileInput = document.getElementById("alarmSoundFile");
+                const alarmMessage = document.getElementById("alarmMessage");
+                const alarmsList = document.getElementById("alarmsList");
+                const nowPlaying = document.getElementById("nowPlaying");
+                const pauseButton = document.getElementById("pauseButton");
+                const playButton = document.getElementById("playButton");
+                const stopButton = document.getElementById("stopButton");
+                const alarmSound = document.getElementById("alarmSound");
+                const actionTypeRadios = document.querySelectorAll('input[name="actionType"]');
+                const scheduleTypeRadios = document.querySelectorAll('input[name="scheduleType"]');
+                const scheduleOptions = document.getElementById("scheduleOptions");
+                const scheduleInputsDate = document.getElementById("scheduleInputsDate");
 
-            // Set default date to today's date
-            const today = new Date().toISOString().split('T')[0];
-            alarmDateInput.value = today;
+                // Set default date to today's date
+                const today = new Date().toISOString().split('T')[0];
+                alarmDateInput.value = today;
 
-            function removeAlarm(index) {
-                clearTimeout(alarms[index].timeoutId);
-                alarms.splice(index, 1);
-                displayAlarms();
-            }
-
-            // Add event listeners for action type radios
-            actionTypeRadios.forEach(radio => {
-                radio.addEventListener('change', handleActionTypeChange);
-            });
-
-            // Add event listeners for schedule type radios
-            scheduleTypeRadios.forEach(radio => {
-                radio.addEventListener('change', handleScheduleTypeChange);
-            });
-
-            function handleActionTypeChange() {
-                const selectedActionType = document.querySelector('input[name="actionType"]:checked').value;
-                if (selectedActionType === "playNow") {
-                    scheduleOptions.classList.add("hidden");
-                    scheduleInputsDate.classList.add("hidden");
-                } else {
-                    scheduleOptions.classList.remove("hidden");
-                    handleScheduleTypeChange();
+                function removeAlarm(index) {
+                    clearTimeout(alarms[index].timeoutId);
+                    alarms.splice(index, 1);
+                    displayAlarms();
                 }
-            }
 
-            function handleScheduleTypeChange() {
-                const selectedScheduleType = document.querySelector('input[name="scheduleType"]:checked').value;
-                if (selectedScheduleType === "date") {
-                    scheduleInputsDate.classList.remove("hidden");
+                // Add event listeners for action type radios
+                actionTypeRadios.forEach(radio => {
+                    radio.addEventListener('change', handleActionTypeChange);
+                });
+
+                // Add event listeners for schedule type radios
+                scheduleTypeRadios.forEach(radio => {
+                    radio.addEventListener('change', handleScheduleTypeChange);
+                });
+
+                function handleActionTypeChange() {
+                    const selectedActionType = document.querySelector('input[name="actionType"]:checked').value;
+                    if (selectedActionType === "playNow") {
+                        scheduleOptions.classList.add("hidden");
+                        scheduleInputsDate.classList.add("hidden");
+                    } else {
+                        scheduleOptions.classList.remove("hidden");
+                        handleScheduleTypeChange();
+                    }
                 }
-            }
 
-            function displayAlarms() {
-                alarmsList.innerHTML = `
+                function handleScheduleTypeChange() {
+                    const selectedScheduleType = document.querySelector('input[name="scheduleType"]:checked').value;
+                    if (selectedScheduleType === "date") {
+                        scheduleInputsDate.classList.remove("hidden");
+                    }
+                }
+
+                function displayAlarms() {
+                    alarmsList.innerHTML = `
                     <table class="w-full border-collapse border border-gray-300">
                         <thead>
                             <tr>
@@ -158,125 +159,125 @@
                         </tbody>
                     </table>
                 `;
-            }
+                }
 
-            function setAlarm() {
-                const selectedActionType = document.querySelector('input[name="actionType"]:checked').value;
-                const alarmDate = alarmDateInput.value;
-                const alarmTime = alarmTimeInput.value;
+                function setAlarm() {
+                    const selectedActionType = document.querySelector('input[name="actionType"]:checked').value;
+                    const alarmDate = alarmDateInput.value;
+                    const alarmTime = alarmTimeInput.value;
 
-                const files = alarmSoundFileInput.files;
-                if (files.length > 0) {
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        const soundSrc = e.target.result;
-                        const soundName = files[0].name;
+                    const files = alarmSoundFileInput.files;
+                    if (files.length > 0) {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            const soundSrc = e.target.result;
+                            const soundName = files[0].name;
 
-                        const alarm = {
-                            date: alarmDate,
-                            time: alarmTime,
-                            soundSrc: soundSrc,
-                            soundName: soundName,
-                            timeoutId: null
+                            const alarm = {
+                                date: alarmDate,
+                                time: alarmTime,
+                                soundSrc: soundSrc,
+                                soundName: soundName,
+                                timeoutId: null
+                            };
+
+                            if (isTimeConflict(alarm)) {
+                                alarmMessage.innerText = "Time conflict. Please choose another time.";
+                                alarmMessage.classList.remove("hidden");
+                                return;
+                            }
+
+                            alarms.push(alarm);
+                            displayAlarms();
+                            alarmMessage.classList.add("hidden");
+
+                            if (selectedActionType === "playNow") {
+                                playAlarm(alarms.length - 1);
+                            } else {
+                                scheduleAlarm(alarms.length - 1);
+                            }
                         };
-
-                        if (isTimeConflict(alarm)) {
-                            alarmMessage.innerText = "Time conflict. Please choose another time.";
-                            alarmMessage.classList.remove("hidden");
-                            return;
-                        }
-
-                        alarms.push(alarm);
-                        displayAlarms();
-                        alarmMessage.classList.add("hidden");
-
-                        if (selectedActionType === "playNow") {
-                            playAlarm(alarms.length - 1);
-                        } else {
-                            scheduleAlarm(alarms.length - 1);
-                        }
-                    };
-                    reader.readAsDataURL(files[0]);
-                }
-            }
-
-            function isTimeConflict(newAlarm) {
-                return alarms.some(alarm => alarm.time === newAlarm.time);
-            }
-
-            function scheduleAlarm(index) {
-                const alarm = alarms[index];
-                const dateTime = new Date(alarm.date + 'T' + alarm.time);
-                const timeToAlarm = dateTime - new Date();
-
-                if (timeToAlarm < 0) {
-                    alarmMessage.innerText = "Please choose a future time.";
-                    alarmMessage.classList.remove("hidden");
-                    return;
+                        reader.readAsDataURL(files[0]);
+                    }
                 }
 
-                alarm.timeoutId = setTimeout(() => {
-                    playAlarm(index);
-                }, timeToAlarm);
-            }
+                function isTimeConflict(newAlarm) {
+                    return alarms.some(alarm => alarm.time === newAlarm.time);
+                }
 
-            function playAlarm(index) {
-                const selectedAlarm = alarms[index];
-                alarmSound.src = selectedAlarm.soundSrc;
-                alarmSound.play();
-                updateNowPlaying(selectedAlarm.soundName, selectedAlarm.time);
-            }
+                function scheduleAlarm(index) {
+                    const alarm = alarms[index];
+                    const dateTime = new Date(alarm.date + 'T' + alarm.time);
+                    const timeToAlarm = dateTime - new Date();
 
-            function updateNowPlaying(soundName, alarmTime) {
-                nowPlaying.innerText = `Playing: ${soundName} at ${alarmTime}`;
-                playButton.classList.add("hidden");
-                pauseButton.classList.remove("hidden");
-                stopButton.classList.remove("hidden");
-            }
+                    if (timeToAlarm < 0) {
+                        alarmMessage.innerText = "Please choose a future time.";
+                        alarmMessage.classList.remove("hidden");
+                        return;
+                    }
 
-            setAlarmButton.addEventListener("click", () => {
-                setAlarm();
+                    alarm.timeoutId = setTimeout(() => {
+                        playAlarm(index);
+                    }, timeToAlarm);
+                }
+
+                function playAlarm(index) {
+                    const selectedAlarm = alarms[index];
+                    alarmSound.src = selectedAlarm.soundSrc;
+                    alarmSound.play();
+                    updateNowPlaying(selectedAlarm.soundName, selectedAlarm.time);
+                }
+
+                function updateNowPlaying(soundName, alarmTime) {
+                    nowPlaying.innerText = `Playing: ${soundName} at ${alarmTime}`;
+                    playButton.classList.add("hidden");
+                    pauseButton.classList.remove("hidden");
+                    stopButton.classList.remove("hidden");
+                }
+
+                setAlarmButton.addEventListener("click", () => {
+                    setAlarm();
+                });
+
+                pauseButton.addEventListener("click", () => {
+                    alarmSound.pause();
+                    pauseButton.classList.add("hidden");
+                    playButton.classList.remove("hidden");
+                });
+
+                playButton.addEventListener("click", () => {
+                    alarmSound.play();
+                    playButton.classList.add("hidden");
+                    pauseButton.classList.remove("hidden");
+                });
+
+                stopButton.addEventListener("click", () => {
+                    alarmSound.pause();
+                    alarmSound.currentTime = 0;
+                    playButton.classList.remove("hidden");
+                    pauseButton.classList.add("hidden");
+                    stopButton.classList.add("hidden");
+                    nowPlaying.innerText = "";
+                });
+
+                // Define removeAlarm function in the window object for table button onclick event
+                window.removeAlarm = function (index) {
+                    clearTimeout(alarms[index].timeoutId);
+                    alarms.splice(index, 1);
+                    displayAlarms();
+                };
+
+                // Define playAlarm function in the window object for table button onclick event
+                window.playAlarm = function (index) {
+                    alarmSound.pause(); // Stop any currently playing sound
+                    alarmSound.currentTime = 0;
+                    const selectedAlarm = alarms[index];
+                    alarmSound.src = selectedAlarm.soundSrc;
+                    alarmSound.play();
+                    updateNowPlaying(selectedAlarm.soundName, selectedAlarm.time);
+                }
             });
-
-            pauseButton.addEventListener("click", () => {
-                alarmSound.pause();
-                pauseButton.classList.add("hidden");
-                playButton.classList.remove("hidden");
-            });
-
-            playButton.addEventListener("click", () => {
-                alarmSound.play();
-                playButton.classList.add("hidden");
-                pauseButton.classList.remove("hidden");
-            });
-
-            stopButton.addEventListener("click", () => {
-                alarmSound.pause();
-                alarmSound.currentTime = 0;
-                playButton.classList.remove("hidden");
-                pauseButton.classList.add("hidden");
-                stopButton.classList.add("hidden");
-                nowPlaying.innerText = "";
-            });
-
-            // Define removeAlarm function in the window object for table button onclick event
-            window.removeAlarm = function (index) {
-                clearTimeout(alarms[index].timeoutId);
-                alarms.splice(index, 1);
-                displayAlarms();
-            };
-
-            // Define playAlarm function in the window object for table button onclick event
-            window.playAlarm = function (index) {
-                alarmSound.pause(); // Stop any currently playing sound
-                alarmSound.currentTime = 0;
-                const selectedAlarm = alarms[index];
-                alarmSound.src = selectedAlarm.soundSrc;
-                alarmSound.play();
-                updateNowPlaying(selectedAlarm.soundName, selectedAlarm.time);
-            }
-        });
-    </script>
+        </script>
 </body>
 
 </html>
