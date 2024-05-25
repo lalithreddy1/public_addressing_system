@@ -67,6 +67,7 @@
             let currentAlarm = null;
 
             setAlarmButton.addEventListener("click", () => {
+                
                 const alarmTime = alarmTimeInput.value;
                 const days = Array.from(alarmDaysInput.querySelectorAll('input:checked')).map(checkbox => parseInt(checkbox.value));
                 const files = alarmSoundFileInput.files;
