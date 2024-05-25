@@ -59,8 +59,7 @@
                 <label for="alarmSoundFile" class="block text-gray-700">Upload Music File (MP3)</label>
                 <input type="file" id="alarmSoundFile" accept="audio/mpeg" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
             </div>
-            <button id="setAlarmButton" class="w-full bg-indigo-500 text-white py-2 rounded-md hover:bg-indigo-600">Set
-                Alarm</button>
+            <button id="setAlarmButton" class="w-full bg-indigo-500 text-white py-2 rounded-md hover:bg-indigo-600">Set Alarm</button>
             <div id="alarmMessage" class="mt-4 text-center text-red-500 hidden"></div>
             <div id="alarmsList" class="mt-4"></div>
         </div>
@@ -87,6 +86,10 @@
             const scheduleTypeRadios = document.querySelectorAll('input[name="scheduleType"]');
             const scheduleOptions = document.getElementById("scheduleOptions");
             const scheduleInputsDate = document.getElementById("scheduleInputsDate");
+
+            // Set default date to today's date
+            const today = new Date().toISOString().split('T')[0];
+            alarmDateInput.value = today;
 
             function removeAlarm(index) {
                 clearTimeout(alarms[index].timeoutId);
@@ -127,14 +130,16 @@
                     <table class="w-full border-collapse border border-gray-300">
                         <thead>
                             <tr>
+                                <th class="border border-gray-300 px-4 py-2">Date</th>
                                 <th class="border border-gray-300 px-4 py-2">Time</th>
                                 <th class="border border-gray-300 px-4 py-2">Sound Name</th>
                                 <th class="border border-gray-300 px-4 py-2">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                                                    ${alarms.map((alarm, index) => `
+                            ${alarms.map((alarm, index) => `
                                 <tr>
+                                    <td class="border border-gray-300 px-4 py-2">${alarm.date}</td>
                                     <td class="border border-gray-300 px-4 py-2">${alarm.time}</td>
                                     <td class="border border-gray-300 px-4 py-2">${alarm.soundName}</td>
                                     <td class="border border-gray-300 px-4 py-2">
@@ -161,6 +166,7 @@
                         const soundName = files[0].name;
 
                         const alarm = {
+                            date: alarmDate,
                             time: alarmTime,
                             soundSrc: soundSrc,
                             soundName: soundName,
@@ -193,7 +199,7 @@
 
             function scheduleAlarm(index) {
                 const alarm = alarms[index];
-                const dateTime = new Date(alarmDateInput.value + 'T' + alarm.time);
+                const dateTime = new Date(alarm.date + 'T' + alarm.time);
                 const timeToAlarm = dateTime - new Date();
 
                 if (timeToAlarm < 0) {
@@ -246,9 +252,17 @@
                 nowPlaying.innerText = "";
             });
 
+            // Add playAlarm function to window object for table button onclick event
+            window.playAlarm = function (index) {
+                alarmSound.pause(); // Stop any currently playing sound
+                alarmSound.currentTime = 0;
+                const selectedAlarm = alarms[index];
+                alarmSound.src = selectedAlarm.soundSrc;
+                alarmSound.play();
+                updateNowPlaying(selectedAlarm.soundName, selectedAlarm.time);
+            }
         });
     </script>
 </body>
 
 </html>
-
