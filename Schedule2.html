@@ -36,6 +36,7 @@
                     </label>
                 </div>
             </div>
+            <div>
             <div id="scheduleOptions" class="mb-4 hidden">
                 <label class="block text-gray-700">Schedule Type:</label>
                 <div>
@@ -45,7 +46,7 @@
                     </label>
                 </div>
             </div>
-            <div id="scheduleInputsDate" class="hidden">
+            <div id="scheduleInputsDate" class="hidden flex flex-row gap-8">
                 <div class="mb-4">
                     <label for="alarmDateInput" class="block text-gray-700">Alarm Date</label>
                     <input type="date" id="alarmDateInput"
@@ -56,12 +57,14 @@
                     <input type="time" id="alarmTimeInput"
                         class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                 </div>
+                <div class="mb-4">
+                    <label for="alarmSoundFile" class="block text-gray-700">Upload Music File (MP3)</label>
+                    <input type="file" id="alarmSoundFile" accept="audio/mpeg"
+                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                </div>
             </div>
-            <div class="mb-4">
-                <label for="alarmSoundFile" class="block text-gray-700">Upload Music File (MP3)</label>
-                <input type="file" id="alarmSoundFile" accept="audio/mpeg"
-                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
             </div>
+           
             <button id="setAlarmButton" class="w-full bg-indigo-500 text-white py-2 rounded-md hover:bg-indigo-600">Set
                 Alarm</button>
             <div id="alarmMessage" class="mt-4 text-center text-red-500 hidden"></div>
