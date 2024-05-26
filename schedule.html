@@ -72,7 +72,7 @@
                 const days = Array.from(alarmDaysInput.querySelectorAll('input:checked')).map(checkbox => parseInt(checkbox.value));
                 const files = alarmSoundFileInput.files;
 
-                if (alarmTime && days.length > 0 && files.length > 0) {
+                if (alarmTime && days.length > 0 && files.length > 0){
                     const reader = new FileReader();
                     reader.onload = (e) => {
                         const alarmSoundSrc = e.target.result;
