@@ -33,6 +33,9 @@ app.get("/s", (req, res) => {
 app.get("/s2", (req, res) => {
   res.sendFile(path.resolve(__dirname + "/Schedule2.html"));
 });
+app.get("/s3", (req, res) => {
+  res.sendFile(path.resolve(__dirname + "/schedule3.html"));
+});
 app.listen(3000, () =>
   console.log("HTTP server listening at http://45.249.79.39:${HTTP_PORT}")
 );
