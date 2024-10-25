@@ -1,79 +1,88 @@
-Web-Based Public Addressing System
-This project is a Web-Based Public Addressing System designed to address hostel students via ESP32-controlled speakers. The system enables real-time, low-latency audio streaming using WebSockets, allowing a broadcaster to transmit audio to multiple ESP32 devices simultaneously.
+Barcode Generation and PDF Creation System
 
+📋 Project Overview
 
-System Block Diagram
-The system comprises three main components:
+This project is a comprehensive system developed for Attal Plastics, Hyderabad, to automate the process of generating barcodes and creating formatted PDF documents for large-scale product inventory management. The system takes a CSV file as input and produces barcodes, PDF documents with formatted information, and an updated CSV file with barcode data.
 
-Broadcaster: A web application interface where the broadcaster inputs and sends audio.
-Node.js Server: Manages WebSocket connections and audio streaming.
-ESP32 Devices: Receive audio data and play it through connected speakers.
-Key Features
-Real-time Audio Streaming: Capture and stream audio directly to ESP32 devices.
-WebSocket Communication: Facilitates low-latency, bidirectional data transmission between the broadcaster and ESP32 devices.
-Mono-channel Audio: Audio is streamed in mono-channel format.
-Scheduling Feature: Plan and schedule broadcasts in advance using the scheduling interface.
-Technologies Used
-Node.js: Manages WebSocket connections and audio streaming.
-WebSockets: Enables real-time communication between the broadcaster and ESP32 microcontrollers.
-ESP32 Microcontrollers: Receive audio and play it through speakers.
-JavaScript & HTML: Handle frontend logic and user interface.
-├── server.js                  # Node.js server handling WebSocket connections
-├── index.js                   # Main entry point for backend logic
-├── broadcast.html             # Web interface for the broadcaster
-├── client.html                # Web interface for listeners/clients
-├── login.html                 # User login page
-├── adminLog.html              # Admin login page
-├── adminreg.html              # Admin registration page
-├── schedule.html              # Interface for scheduling broadcasts
-├── musicScheduler.js          # JavaScript for scheduling music broadcasts
-├── esp32_audio_controller.ino # ESP32 code for WebSocket handling
+🔑 Key Features
 
-├── Public/
-│   ├── css/
-│   │   ├── broadcast.css      # Styles for the broadcaster interface
-│   │   ├── style.css          # General styles for the web pages
-│   │   ├── normalize.css      # CSS reset for consistent styling across browsers
-│   │   ├── login.css          # Styles for the login page
-│   │   └── demo.vss           # Additional visual styling for demo
-│   ├── images/
-│   │   ├── bg.jpg             # Background image for the website
-│   │   ├── green.jpg          # Green-themed image asset
-│   │   ├── logout.jpg         # Image for logout button
-│   │   └── metal.jpg          # Decorative metal-themed image asset
-│   └── js/
-│       ├── b.js               # JavaScript for additional functionality
-│       ├── c.js               # JavaScript for client-side interaction
-│       ├── transform.js       # JavaScript for DOM transformations
-│       └── wave.js            # JavaScript for audio wave visualization
+CSV data processing
+EAN13 barcode generation
+PDF creation with formatted product information and barcodes
+Automated workflow from data input to final output
+Support for different product categories (Medium and Large)
+🛠️ Installation
 
+Clone this repository:
+git clone https://github.com/yourusername/barcode-pdf-generator.git
+cd barcode-pdf-generator
+Install the required Python libraries:
+pip install pandas numpy python-barcode Pillow reportlab pyzba
+📁 File Structure
 
-Installation
-Clone the repository:
+main.py: The main script that orchestrates the entire process.
+Barcode_generator.py: Generates EAN13 barcodes for each product.
+PDF_Format_maker.py: Creates formatted PDF documents with product information and barcodes.
+CSV_Gen_for_barcode_numbers.py: Updates the CSV file with decoded barcode data.
+🚀 Usage
 
-bash
-Copy code
-git clone <repository-url>
-Install dependencies:
+Run the main script:
 
-bash
-Copy code
-npm install
-Configure the ESP32: Flash the ESP32 with the .ino file from the project.
+python main.py
+When prompted, select the input CSV file using the file dialog.
 
-Run the server:
+The script will create the following outputs in the project directory:
 
-bash
-Copy code
-node server.js
-Access the broadcaster interface:
+A folder named after the input CSV file
+Subfolders for 'medium' and 'large' categories
+Individual barcode images
+PDF files with formatted product information and barcodes
+An updated CSV file with barcode data
+📄 Input CSV Format
 
-Open a browser and navigate to http://localhost:3000/broadcast.html.
-Access the scheduling interface:
+The input CSV should have the following columns:
 
-Navigate to http://localhost:3000/schedule.html to schedule future broadcasts.
-Future Enhancements
-Add stereo audio support.
-Implement broadcaster authentication for secure access.
-Improve mobile compatibility.
-![image](https://github.com/user-attachments/assets/29207600-820b-4536-bd14-c787fa56b55b)
+S.No
+Barcode No.
+Delivery Challan No.
+District
+Delivery Point
+Item
+Category
+Sub Category
+Qty
+🔍 Detailed Component Descriptions
+
+main.py
+
+This script is the entry point of the application. It:
+
+Uses tkinter to open a file dialog for CSV selection
+Reads the CSV file using pandas
+Creates necessary directories for output
+Calls functions from other modules to generate barcodes, create PDFs, and update the CSV
+Barcode_generator.py
+
+This module is responsible for generating EAN13 barcodes. It:
+
+Processes the input data row by row
+Generates an EAN13 barcode for each item
+Saves the barcode as a PNG image
+Keeps track of the number of barcodes generated for each delivery point and category
+PDF_Format_maker.py
+
+This module creates formatted PDF documents. It:
+
+Defines functions (form1, form2, form3, form4) for different layouts on the PDF page
+Creates PDF files for both 'medium' and 'large' categories
+Adds product information and barcode images to the PDF
+CSV_Gen_for_barcode_numbers.py
+
+This module updates the original CSV file with barcode data. It:
+
+Reads the generated barcode images
+Decodes the barcodes using pyzbar
+Updates the CSV file with the decoded barcode numbers
+🤝 Contributing
+
+Contributions, issues, and feature requests are welcome. Feel free to check https://github.com/lalithreddy1/Barcode_generator/issues) if you want to contribute.
